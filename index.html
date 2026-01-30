@@ -3,28 +3,91 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>시간/진행률(09:00~20:00)</title>
+  <title>가로형 시간 패널</title>
   <style>
     body {
       font-family: system-ui, -apple-system, "Noto Sans KR", sans-serif;
-      padding: 24px;
+      padding: 16px;
       background: #fafafa;
     }
-    .card {
-      max-width: 560px;
+    .panel {
+      width: 100%;
+      max-width: 980px;
       border: 1px solid #e5e7eb;
       border-radius: 14px;
-      padding: 18px 20px;
       background: #fff;
-      box-shadow: 0 1px 8px rgba(0,0,0,0.04);
+      padding: 14px 16px;
+      box-shadow: 0 1px 10px rgba(0,0,0,0.04);
     }
-    .row { margin: 12px 0; }
-    .label { color: #6b7280; font-size: 13px; margin-bottom: 6px; }
-    .value { font-size: 22px; font-weight: 800; }
-    .sub { color: #374151; font-size: 14px; }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+      align-items: start;
+    }
+
+    .row {
+      display: flex;
+      justify-content: space-between;
+      gap: 14px;
+      padding: 10px 0;
+      border-bottom: 1px solid #f3f4f6;
+    }
+    .row:last-child { border-bottom: 0; }
+
+    .label {
+      color: #6b7280;
+      font-size: 13px;
+      margin-bottom: 6px;
+    }
+    .value {
+      font-size: 20px;
+      font-weight: 800;
+      color: #111827;
+      line-height: 1.15;
+      white-space: nowrap;
+    }
+
+    .right .value {
+      text-align: right;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .hint {
+      color: #6b7280;
+      font-size: 12px;
+      margin-top: 2px;
+      text-align: right;
+    }
+
+    .barWrap {
+      margin-top: 14px;
+      padding-top: 12px;
+      border-top: 1px solid #e5e7eb;
+    }
+
+    .barHeader {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: baseline;
+      margin-bottom: 8px;
+    }
+    .barTitle {
+      color: #6b7280;
+      font-size: 13px;
+    }
+    .barPct {
+      font-size: 13px;
+      color: #111827;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
     progress {
       width: 100%;
-      height: 18px;
+      height: 16px;
       border-radius: 999px;
       overflow: hidden;
       appearance: none;
@@ -32,58 +95,90 @@
     progress::-webkit-progress-bar { background: #f3f4f6; border-radius: 999px; }
     progress::-webkit-progress-value { background: #111827; border-radius: 999px; }
     progress::-moz-progress-bar { background: #111827; }
-    .meta {
+
+    .barMeta {
       display: flex;
       justify-content: space-between;
-      gap: 10px;
       margin-top: 8px;
-      font-size: 13px;
-      color: #6b7280;
-    }
-    .pill {
-      display: inline-block;
-      padding: 4px 8px;
-      border-radius: 999px;
-      border: 1px solid #e5e7eb;
-      background: #fff;
       font-size: 12px;
-      color: #374151;
-      margin-left: 8px;
-      vertical-align: middle;
+      color: #6b7280;
+      gap: 10px;
+    }
+
+    /* 화면이 좁으면 세로로 */
+    @media (max-width: 700px) {
+      .grid { grid-template-columns: 1fr; }
+      .right .value, .hint { text-align: left; }
     }
   </style>
 </head>
 <body>
-  <div class="card" role="region" aria-label="날짜 요일 시간 및 진행률">
-    <div class="row">
-      <div class="label">오늘 날짜</div>
-      <div class="value" id="date">-</div>
-    </div>
+  <div class="panel" role="region" aria-label="가로형 시간 패널">
+    <div class="grid">
+      <!-- LEFT -->
+      <div class="left">
+        <div class="row">
+          <div>
+            <div class="label">날짜</div>
+            <div class="value" id="date">-</div>
+          </div>
+        </div>
 
-    <div class="row">
-      <div class="label">요일</div>
-      <div class="value" id="weekday">-</div>
-    </div>
+        <div class="row">
+          <div>
+            <div class="label">요일</div>
+            <div class="value" id="weekday">-</div>
+          </div>
+        </div>
 
-    <div class="row">
-      <div class="label">현재 시간 (초까지)</div>
-      <div class="value" id="time">-</div>
-    </div>
-
-    <hr style="border:0;border-top:1px solid #e5e7eb; margin: 16px 0;" />
-
-    <div class="row">
-      <div class="label">
-        진행률 (09:00 ~ 20:00)
-        <span class="pill" id="percentText">0%</span>
+        <div class="row">
+          <div>
+            <div class="label">현재시간 (초까지)</div>
+            <div class="value" id="time">-</div>
+          </div>
+        </div>
       </div>
+
+      <!-- RIGHT -->
+      <div class="right">
+        <div class="row">
+          <div style="width:100%;">
+            <div class="label">12시 10분까지 남은 시간</div>
+            <div class="value" id="remain1210">-</div>
+            <div class="hint" id="remain1210Hint">목표: 12:10</div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div style="width:100%;">
+            <div class="label">18시 30분까지 남은 시간</div>
+            <div class="value" id="remain1830">-</div>
+            <div class="hint" id="remain1830Hint">목표: 18:30</div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div style="width:100%;">
+            <div class="label">상태</div>
+            <div class="value" id="status">-</div>
+            <div class="hint">09:00~20:00 기준 진행률</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PROGRESS BAR -->
+    <div class="barWrap">
+      <div class="barHeader">
+        <div class="barTitle">9시부터 20시까지 진행바</div>
+        <div class="barPct" id="pctText">0.0%</div>
+      </div>
+
       <progress id="prog" value="0" max="100">0%</progress>
-      <div class="meta">
-        <span id="statusText">-</span>
+
+      <div class="barMeta">
         <span id="rangeText">09:00 → 20:00 (11시간)</span>
-      </div>
-      <div class="sub" style="margin-top:10px;">
-        기준: <strong>09:00</strong>부터 <strong>20:00</strong>까지의 경과 비율
+        <span id="progressState">-</span>
       </div>
     </div>
   </div>
@@ -92,45 +187,69 @@
     const $date = document.getElementById("date");
     const $weekday = document.getElementById("weekday");
     const $time = document.getElementById("time");
+
+    const $remain1210 = document.getElementById("remain1210");
+    const $remain1830 = document.getElementById("remain1830");
+
+    const $status = document.getElementById("status");
+
     const $prog = document.getElementById("prog");
-    const $percentText = document.getElementById("percentText");
-    const $statusText = document.getElementById("statusText");
+    const $pctText = document.getElementById("pctText");
+    const $progressState = document.getElementById("progressState");
 
     const weekdayNames = ["일", "월", "화", "수", "목", "금", "토"];
 
     function pad2(n) { return String(n).padStart(2, "0"); }
 
+    function formatHMS(ms) {
+      const totalSec = Math.floor(ms / 1000);
+      const h = Math.floor(totalSec / 3600);
+      const m = Math.floor((totalSec % 3600) / 60);
+      const s = totalSec % 60;
+      return `${pad2(h)}:${pad2(m)}:${pad2(s)}`;
+    }
+
+    function remainingUntil(now, targetHour, targetMin) {
+      const t = new Date(now);
+      t.setHours(targetHour, targetMin, 0, 0);
+
+      const diff = t.getTime() - now.getTime();
+      if (diff <= 0) return { text: "이미 지남", diffMs: diff };
+      return { text: formatHMS(diff), diffMs: diff };
+    }
+
     function setProgress(now) {
-      // 오늘 날짜의 09:00, 20:00 타임스탬프 만들기
       const start = new Date(now);
       start.setHours(9, 0, 0, 0);
 
       const end = new Date(now);
       end.setHours(20, 0, 0, 0);
 
-      const total = end.getTime() - start.getTime(); // 11시간(ms)
+      const total = end.getTime() - start.getTime();
       const cur = now.getTime();
 
       let pct = 0;
+      let state = "";
       let status = "";
 
       if (cur < start.getTime()) {
         pct = 0;
-        status = "아직 시작 전 (09:00 이전)";
+        state = "시작 전";
+        status = "09:00 이전";
       } else if (cur >= end.getTime()) {
         pct = 100;
-        status = "오늘 구간 완료 (20:00 이후)";
+        state = "완료";
+        status = "20:00 이후";
       } else {
-        const elapsed = cur - start.getTime();
-        pct = (elapsed / total) * 100;
-        status = "진행 중";
+        pct = ((cur - start.getTime()) / total) * 100;
+        state = "진행 중";
+        status = "구간 내";
       }
 
-      // 보기 좋게 소수점 1자리
-      const pctText = `${pct.toFixed(1)}%`;
       $prog.value = Math.min(100, Math.max(0, pct));
-      $percentText.textContent = pctText;
-      $statusText.textContent = status;
+      $pctText.textContent = `${pct.toFixed(1)}%`;
+      $progressState.textContent = state;
+      $status.textContent = status;
     }
 
     function render() {
@@ -140,15 +259,15 @@
       const mm = pad2(now.getMonth() + 1);
       const dd = pad2(now.getDate());
 
-      const day = weekdayNames[now.getDay()];
-      const hh = pad2(now.getHours());
-      const min = pad2(now.getMinutes());
-      const sec = pad2(now.getSeconds());
-
       $date.textContent = `${yyyy}-${mm}-${dd}`;
-      $weekday.textContent = `${day}요일`;
-      $time.textContent = `${hh}:${min}:${sec}`;
+      $weekday.textContent = `${weekdayNames[now.getDay()]}요일`;
+      $time.textContent = `${pad2(now.getHours())}:${pad2(now.getMinutes())}:${pad2(now.getSeconds())}`;
 
+      // 남은 시간
+      $remain1210.textContent = remainingUntil(now, 12, 10).text;
+      $remain1830.textContent = remainingUntil(now, 18, 30).text;
+
+      // 진행률
       setProgress(now);
     }
 
